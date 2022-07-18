@@ -1,0 +1,18 @@
+[
+  {
+    "task": "Task 1",
+    "variants": [
+      "Variant 1",
+      "Variant 2"
+    ],
+    "correct": "Variant 2"
+  },
+  {
+    "task": "Task 2",
+    "variants": [
+      "Variant One",
+      "Variant Two"
+    ],
+    "correct": "Variant One"
+  }
+]

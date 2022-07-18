@@ -1,0 +1,12 @@
+{
+  "name": "google-form-quiz-generator",
+  "author": "Vitaluy Komarov",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "googleapis": "^105.0.0"
+  }
+}
