@@ -10,9 +10,9 @@
   {
     "task": "Task 2",
     "variants": [
-      "Variant One",
-      "Variant Two"
+      "Variant 1",
+      "Variant 2"
     ],
-    "correct": "Variant One"
+    "correct": "Variant 1"
   }
 ]

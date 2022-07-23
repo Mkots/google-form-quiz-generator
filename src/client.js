@@ -1,6 +1,8 @@
 import path from "path";
 import {google} from "googleapis";
 import {authenticate} from '@google-cloud/local-auth';
+import {choiceQuestion} from "./choiseQuestion.js";
+import {textQuestion} from "./textQuestion.js";
 
 const authClient = await authenticate({
     keyfilePath: path.join(path.resolve('credentials.json')),
@@ -11,7 +13,10 @@ const forms = google.forms({
     auth: authClient,
 });
 
-
+/**
+ * @param name {string}
+ * @returns {Promise<string>}
+ */
 export const createNewForm = async (name) => {
 
     const newForm = {
@@ -26,6 +31,11 @@ export const createNewForm = async (name) => {
     return res.data.formId;
 }
 
+
+/**
+ * @param formId {string}
+ * @returns {Promise<void>}
+ */
 export const convertToQuiz = async (formId) => {
     await forms.forms.batchUpdate({
         formId: formId,
@@ -45,6 +55,12 @@ export const convertToQuiz = async (formId) => {
     });
 }
 
+
+/**
+ * @param options {Object[]}
+ * @param formId {string}
+ * @returns {Promise<void>}
+ */
 export const addQuestion = async (options, formId) => {
     await forms.forms.batchUpdate({
         formId: formId,
@@ -54,55 +70,32 @@ export const addQuestion = async (options, formId) => {
     })
 }
 
-export const optionsMapper = (options) => {
+/***
+ *
+ * @param options {Object[]}
+ * @param type {"choice"|"text"}
+ * @param taskPerPage {number}
+ * @returns {Schema$Request[]}
+ */
+export const optionsMapper = (options, type, taskPerPage = 1) => {
+    const questionGenerator = type === 'choice' ? choiceQuestion : textQuestion;
     const tasks = options.map((el, index) => {
-        const {task, correct, variants} = el;
-        return {
-            createItem: {
-                item: {
-                    title: task,
-                    description: null,
-                    questionItem: {
-                        question: {
-                            grading: {
-                                pointValue: 1,
-                                correctAnswers: {
-                                    answers: [{
-                                        value: correct
-                                    }]
-                                }
-                            },
-                            choiceQuestion: {
-                                type: 'RADIO',
-                                options: variants.map(variant => ({value: variant})
-                                )
-                            }
-                        }
-                    }
-                },
-                location: {
-                    index: index
-                }
-            }
-        }
+        const {task, correct, variants, tag} = el;
+        return questionGenerator(task, correct, index, variants, tag)
     });
 
-    for (let i = 0; i < tasks.length; i++) {
-        if (i % 2 !== 0) {
-            tasks.splice(i, 0, {
-                createItem: {
-                    item: {
-                        pageBreakItem: {}
-                    },
-                    location: {
-                        index: i
-                    }
-                }
-            })
+    const grouped = tasks.map((el, index) => index !== 0 && index % taskPerPage === 0 ? [{
+        createItem: {
+            item: {
+                pageBreakItem: {}
+            },
+            location: {
+                index: index
+            }
         }
-    }
+    }, el]: [el]).flat();
 
-    return tasks.map((task, i) => {
+    return grouped.map((task, i) => {
         return {
             ...task, createItem: {
                 ...task.createItem, location: {
