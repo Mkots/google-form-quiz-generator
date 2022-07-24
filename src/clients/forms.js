@@ -1,17 +1,6 @@
-import path from "path";
-import {google} from "googleapis";
-import {authenticate} from '@google-cloud/local-auth';
-import {choiceQuestion} from "./choiseQuestion.js";
-import {textQuestion} from "./textQuestion.js";
-
-const authClient = await authenticate({
-    keyfilePath: path.join(path.resolve('credentials.json')),
-    scopes: 'https://www.googleapis.com/auth/drive',
-});
-const forms = google.forms({
-    version: 'v1',
-    auth: authClient,
-});
+import {choiceQuestion} from "../utils/forms/choiseQuestion.js";
+import {textQuestion} from "../utils/forms/textQuestion.js";
+import {forms} from "./baseClient.js";
 
 /**
  * @param name {string}
